@@ -1,0 +1,6 @@
+/target
+/src/bankid/target
+/src/swish/target
+/src/cosmos_api/target
+/swish
+/env_run.sh

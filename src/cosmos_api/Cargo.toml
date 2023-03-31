@@ -1,0 +1,24 @@
+[package]
+name = "cosmos-utils"
+version = "0.1.0"
+authors = ["user <user@user.user>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+appinsights = "0.1.5"
+serde = "1.0.125"
+tokio = { version = "1.5.0", features = ["time", "macros"] }
+# Depending on git repos for now since the azure-sdk-for-rust crate is slow to update and depends on 0.1 futures while everything else depends on 0.3 futures
+azure_core = { git = "https://github.com/Azure/azure-sdk-for-rust/", rev = "94a716fbaeaca1ab04f088840078b29528d03a83" }
+azure_cosmos = { git = "https://github.com/Azure/azure-sdk-for-rust/", rev = "94a716fbaeaca1ab04f088840078b29528d03a83" }
+azure_storage = { git = "https://github.com/Azure/azure-sdk-for-rust/", features = ["blob"], rev = "94a716fbaeaca1ab04f088840078b29528d03a83"}
+lazy_static = "1.4.0"
+rand = "0.8.3"
+warp = "0.3.1"
+futures = "0.3.14"
+uuid = "0.8.2"
+reqwest = "0.11.3"
+md5 = "0.7.0"
+erased-serde = "0.3.13"

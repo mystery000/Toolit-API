@@ -1,0 +1,60 @@
+target_dir = "."
+roles = ["GLOBAL_CONTENT_ADMIN", "GLOBAL_PERSONNEL_ADMIN", "GLOBAL_BILLING_ADMIN"]
+add_to_main = true
+add_to_mods = true
+cargo_toml_deps = true
+
+[[data]]
+name = "user"
+methods = [["Get", ["ALL"]], ["Delete", ["OFFICE_CONTENT_ADMIN"]]]
+fields = ["first_name: String", "middle_names: Option<String>", "last_name: String", "preferred_name: Option<String>", "image: Vec<String>", "description: String", "rating: Vec<i32>", "devices: Vec<Device>", "roles: Option<Vec<Role>>", "test: bool"]
+unimplemented = "On delete the OFFICE_CONTENT_ADMIN should be any type of office content admin not for a specific office"
+
+[[data]]
+name = "office"
+methods = [["Post", ["GLOBAL_CONTENT_ADMIN"]], ["Delete", ["GLOBAL_CONTENT_ADMIN", "OFFICE_CONTENT_ADMIN"]], ["Get", ["ALL"]]]
+fields = ["name: Vec<String>", "lang: Vec<String>"]
+roles = ["OFFICE_CONTENT_ADMIN", "OFFICE_PERSONNEL_ADMIN", "OFFICE_BILLING_ADMIN"]
+
+[[data]]
+parent = "user"
+name = "craftsman"
+plural = "craftsmen"
+methods = [["Post", ["OFFICE_CONTENT_ADMIN"]], ["Delete", ["OFFICE_CONTENT_ADMIN"]], ["Get", ["ALL"]]]
+fields = ["name: String", "text: String"]
+unimplemented = "Fill in the fields for this one"
+
+[[data]]
+parent = "office"
+name = "task"
+methods = [["Post", ["ALL"]], ["Delete", ["OFFICE_CONTENT_ADMIN", "SELF"]], ["Get", ["ALL"]], ["ImagePut", ["SELF"]]]
+fields = ["title: String", "description: String", "date_done: DateTime<Utc>", "price: Decimal", "image: Option<String>", "user_id: String"]
+
+[[data]]
+parent = "craftsman"
+name = "rating"
+methods = [["Post", []], ["Delete", ["OFFICE_CONTENT_ADMIN"]], ["Get", ["ALL"]]]
+fields = ["user_id: String", "text: String", "amount: i32"]
+unimplemented = "Only users that have either purchased a service or provided a service should be allowed to post, and only once"
+roles = ["CRAFTSMAN"]
+
+[[data]]
+parent = "task"
+name = "payment"
+methods = [["Delete", ["OFFICE_BILLING_ADMIN"]], ["Get", ["OFFICE_BILLING_ADMIN"]]]
+fields = ["is_paid: bool", "user_id: String"]
+unimplemented = "Creating payments should be done through a purchace function"
+
+[[data]]
+parent = "bid"
+plural = "messages"
+name = "message"
+methods = [["Post", ["ALL"]], ["Delete", ["OFFICE_CONTENT_ADMIN", "SELF"]], ["Get", ["ALL"]]]
+fields = ["message: String", "user_id: String", "message_date: DateTime<Utc>"]
+unimplemented = "Anyone is currently allowed to post these too, maybe restrict that?"
+
+[[data]]
+parent = "task"
+name = "bid"
+methods = [["Post", ["ALL"]], ["Delete", ["OFFICE_CONTENT_ADMIN", "SELF"]], ["Get", ["OFFICE_CONTENT_ADMIN", "SELF"]]]
+fields = ["price: Decimal", "user_id: String", "labour_cost: Decimal", "material_cost: Decimal", "root_deduction: Decimal", "final_bid: Decimal"]

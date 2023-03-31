@@ -1,0 +1,59 @@
+# Docker
+# Build and push an image to Azure Container Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: 'f09fc557-3211-4493-ab43-29eac7d58c4e'
+  imageRepository: 'toolit-api'
+  containerRegistry: 'toolitlive.azurecr.io'
+  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    timeoutInMinutes: 360 # How long to run the job before automatically cancelling.
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+- stage: Deploy
+  displayName: Deploy stage
+  jobs:
+  - job: Deploy
+    timeoutInMinutes: 360 # How long to run the job before automatically cancelling.
+    displayName: Deploy
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: AzureRmWebAppDeployment@4
+      inputs:
+        ConnectedServiceName: 'toolit-live'
+        subscriptionName: '184047cd-11fe-4269-8ff6-1f64f9ff8244'
+        ConnectionType: 'AzureRM'
+        appType: 'webAppContainer'
+        WebAppName: 'toolit-api-live'
+        DockerNamespace: 'toolitlive.azurecr.io'
+        DockerRepository: $(imageRepository)
+        DockerImageTag: $(tag)
